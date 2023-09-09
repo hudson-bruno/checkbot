@@ -13,6 +13,11 @@ async def main():
 
     @bot.listen("on_ready")
     async def on_ready():
+        try:
+            await bot.tree.sync()
+        except Exception as e:
+            print(f"Failed to sync commands: {e}")
+
         print(f"Logged in as {bot.user}")
 
     await bot.add_cog(CheckCog(bot))

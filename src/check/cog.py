@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Callable, Optional
 
+from discord import Interaction, app_commands
 from discord.ext import commands
-from discord.ext.commands.context import Context
 
 from check.repositories.in_memory_check_repository import InMemoryCheckRepository
 from check.use_cases.check import CheckUseCase, CheckUseCaseDTO
@@ -27,18 +27,18 @@ class CheckCog(commands.Cog):
 
         self.repository = InMemoryCheckRepository()
 
-    @commands.command()
-    async def check(self, ctx: Context, *, arg: Optional[str]):
+    @app_commands.command()
+    async def check(self, ctx: Interaction, date: Optional[str]):
         try:
             converter = DateConverter(default=datetime.utcnow)
-            date = await converter.convert(arg)
+            parsed_date = await converter.convert(date)
         except Exception as e:
-            return await ctx.send(str(e))
+            return await ctx.response.send_message(str(e))
 
         use_case = CheckUseCase(self.repository)
 
-        check = await use_case.execute(CheckUseCaseDTO(ctx.author, date))
+        check = await use_case.execute(CheckUseCaseDTO(ctx.user, parsed_date))
 
-        await ctx.send(
+        await ctx.response.send_message(
             f"{check.user.mention} checked at {check.date.strftime('%d/%m/%y %H:%M')}!"
         )
