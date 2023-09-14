@@ -12,6 +12,7 @@ from check.repositories.check_repository import CheckRepository
 class CheckUseCaseDTO:
     user: User | Member
     date: datetime
+    insert_type: Check.InsertType
 
 
 class CheckUseCase:
@@ -19,7 +20,7 @@ class CheckUseCase:
         self.repository = repository
 
     async def execute(self, dto: CheckUseCaseDTO) -> Check:
-        check = Check(uuid4(), dto.user, dto.date, Check.InsertType.AUTO)
+        check = Check(uuid4(), dto.user, dto.date, dto.insert_type)
 
         self.repository.insert(check)
 
